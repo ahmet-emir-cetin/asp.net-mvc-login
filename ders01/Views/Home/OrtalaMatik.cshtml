@@ -1,0 +1,107 @@
+@model ders01.Models.LessonViewModel
+@{
+    ViewData["Title"] = "OrtalaMatik";
+
+    int dersOrtalamasi = 0;
+    int tumDerslerinOrtalamasi = 0;
+    int toplamKredi = 0;
+    int ortalama = 0;
+    if (Model.Lessons!.Count() > 0)
+    {
+        foreach (var item in Model.Lessons!)
+        {
+            dersOrtalamasi = item.Note * item.Kredi;
+            tumDerslerinOrtalamasi = tumDerslerinOrtalamasi + dersOrtalamasi;
+            toplamKredi = toplamKredi + item.Kredi;
+        }
+        ortalama = tumDerslerinOrtalamasi / toplamKredi;
+    }
+    else
+    {
+        ortalama = 0;
+    }
+}
+
+   <div class="container my-5 bg-dark rounded rounded-3">
+        <div class="add-lesson p-5">
+            <h1 class="text-center text-white py-3">@ViewData["Title"]</h1>
+            <form action="/add-lesson" method="post" id="formLesson">
+            @Html.AntiForgeryToken()
+                <div class="row py-3">
+                    <div class="col-md-12 my-1 my-md-0">
+                        <input asp-for="Title" type="text" class="form-control" placeholder="Ders Adı" id="txtTitle">
+                    <span asp-validation-for="Title" class="text-danger mt-5"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 my-1 my-md-0">
+                        <input asp-for="Kredi" type="number" min="1" class="form-control" placeholder="Ders Kredi" id="txtKredi">
+                    <span asp-validation-for="Kredi" class="text-danger mt-5"></span>
+                    </div>
+                    <div class="col-md-4 my-1 my-md-0">
+                        <input asp-for="Note" type="number" min="0" max="100" class="form-control" placeholder="Ders Notu" id="txtNot">
+                    <span asp-validation-for="Note" class="text-danger mt-5"></span>
+                    </div>
+                    <div class="col-md-4 my-1 my-md-0">
+                        <button class="btn btn-success w-100" id="btnAdd">Ekle</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+   </div>
+    <div class="container px-0">
+            <div class="row my-3">
+                <h2 class="text-dark text-center fs-1 pt-2">Ortalama: @ortalama </h2>
+            </div>
+            <div class="row d-flex justify-content-around p-3">
+
+                    @foreach (var item in Model.Lessons!)
+                    {
+                        <div class="col-md-12 p-5 my-2 rounded rounded-4 bg-dark border border-1 border-white">
+                            <h5 class="text-light">@item.Title</h5>
+                            <div class="border border-bottom border-white"></div>
+                            <div class="information d-flex justify-content-between m-2">
+                                <span class="text-light">Kredi: @item.Kredi</span>
+                                <span class="text-light">Not: @item.Note</span>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button data-action="remove-lesson" data-id="@item.Id" class="btn btn-danger w-100 delete-lesson">Delete</button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button data-action="edit-lesson" onclick="FetchData('@item.Id','@item.Title','@item.Note','@item.Kredi')" data-id="@item.Id" class="btn btn-primary btn-edit w-100">Edit</button>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    }
+            </div>
+    </div>
+<script>
+function FetchData(Id,Title,Not,Kredi){
+    var addLessonBtn = $('#btnAdd');
+    var form = $('#formLesson');
+
+    $('#txtTitle').val(Title);
+    $('#txtKredi').val(Kredi);
+    $('#txtNot').val(Not);
+    addLessonBtn.text("Güncelle");
+    addLessonBtn.removeClass('btn-success');
+    addLessonBtn.addClass('btn-primary');
+    if (form.attr("action") == "/add-lesson") {
+        form.attr("action", "/update-lesson/" + Id);
+        addLessonBtn.text("Güncelle");
+        addLessonBtn.removeClass('btn-success');
+        addLessonBtn.addClass('btn-primary');
+    }
+    else if (form.attr("action") == "/update-lesson/" + Id) {
+        form.attr("action", "/add-lesson");
+        addLessonBtn.text("Ekle");
+        addLessonBtn.addClass('btn-success');
+        addLessonBtn.removeClass('btn-primary');
+        $("#txtTitle").val("");
+        $("#txtKredi").val("");
+        $("#txtNot").val("");
+    }
+}
+</script>

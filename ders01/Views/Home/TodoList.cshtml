@@ -1,0 +1,31 @@
+@model ders01.Models.TodoViewModel
+@{
+    ViewData["Title"] = "TodoList";
+}
+<div class="container bg-secondary text-white p-5">
+        <h1 class="text-center text-white py-3">@ViewData["Title"]</h1>
+        <form action="/add-todo" method="post">
+        @Html.AntiForgeryToken()
+            <div class="row py-3">
+                <div class="col-9 p-0">
+                    <input asp-for="Title" type="text" class="form-control" placeholder="Başlık" id="txtTitle">
+                <span asp-validation-for="Title" class="text-danger mt-5"></span>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-success w-100" id="btnAdd">Ekle</button>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <ul class="list-group" id="list">
+                @foreach (var item in Model.Todos!)
+                {
+                        <li data-action="update-todo" data-id="@item.Id" class='list-group-item @(item.IsComplated==true? "list-group-item-success m-1":"list-group-item-danger m-1 text-decoration-line-through")'>
+                            @item.Title
+                            
+                           <button class="btn-close float-end" data-action="remove-todo" data-id="@item.Id"></button>
+                        </li>
+                }
+            </ul>
+        </div>
+    </div>
